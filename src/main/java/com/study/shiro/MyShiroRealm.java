@@ -38,13 +38,13 @@ public class MyShiroRealm extends AuthorizingRealm {
     //授权
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        User user= (User) SecurityUtils.getSubject().getPrincipal();//User{id=1, username='admin', password='3ef7164d1f6167cb9f2658c07d3c2f0a', enable=1}
-        Map<String,Object> map = new HashMap<String,Object>();
-        map.put("userid",user.getId());
+        User                user = (User) SecurityUtils.getSubject().getPrincipal();//User{id=1, username='admin', password='3ef7164d1f6167cb9f2658c07d3c2f0a', enable=1}
+        Map<String, Object> map  = new HashMap<>();
+        map.put("userid", user.getId());
         List<Resources> resourcesList = resourcesService.loadUserResources(map);
         // 权限信息对象info,用来存放查出的用户的所有的角色（role）及权限（permission）
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-        for(Resources resources: resourcesList){
+        for (Resources resources : resourcesList) {
             info.addStringPermission(resources.getResurl());
         }
         return info;
@@ -54,16 +54,20 @@ public class MyShiroRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         //获取用户的输入的账号.
-        String username = (String)token.getPrincipal();
-        User user = userService.selectByUsername(username);
-        if(user==null) throw new UnknownAccountException();
-        if (0==user.getEnable()) {
-            throw new LockedAccountException(); // 帐号锁定
+        String username = (String) token.getPrincipal();
+        User   user     = userService.selectByUsername(username);
+        //用户是否存在
+        if (user == null) {
+            throw new UnknownAccountException();
+        }
+        // 帐号是否锁定
+        if (0 == user.getEnable()) {
+            throw new LockedAccountException();
         }
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
                 user, //用户
                 user.getPassword(), //密码
-                ByteSource.Util.bytes(username),
+                ByteSource.Util.bytes(username),//用户名作为加密salt
                 getName()  //realm name
         );
         // 当验证都通过后，把用户信息放在session里
@@ -76,37 +80,44 @@ public class MyShiroRealm extends AuthorizingRealm {
 
     /**
      * 根据userId 清除当前session存在的用户的权限缓存
+     *
      * @param userIds 已经修改了权限的userId
      */
-    public void clearUserAuthByUserId(List<Integer> userIds){
-        if(null == userIds || userIds.size() == 0)	return ;
+    public void clearUserAuthByUserId(List<Integer> userIds) {
+        if (null == userIds || userIds.size() == 0)
+            return;
+        List<SimplePrincipalCollection> list = getSimplePrincipalCollections(userIds);
+        RealmSecurityManager securityManager =
+                (RealmSecurityManager) SecurityUtils.getSecurityManager();
+        MyShiroRealm realm = (MyShiroRealm) securityManager.getRealms().iterator().next();
+        for (SimplePrincipalCollection simplePrincipalCollection : list) {
+            realm.clearCachedAuthorizationInfo(simplePrincipalCollection);
+        }
+    }
+
+    private List<SimplePrincipalCollection> getSimplePrincipalCollections(List<Integer> userIds) {
         //获取所有session
         Collection<Session> sessions = redisSessionDAO.getActiveSessions();
         //定义返回
-        List<SimplePrincipalCollection> list = new ArrayList<SimplePrincipalCollection>();
-        for (Session session:sessions){
+        List<SimplePrincipalCollection> list = new ArrayList<>();
+        for (Session session : sessions) {
             //获取session登录信息。
             Object obj = session.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
-            if(null != obj && obj instanceof SimplePrincipalCollection){
+            if (null != obj && obj instanceof SimplePrincipalCollection) {
                 //强转
-                SimplePrincipalCollection spc = (SimplePrincipalCollection)obj;
+                SimplePrincipalCollection spc = (SimplePrincipalCollection) obj;
                 //判断用户，匹配用户ID。
                 obj = spc.getPrimaryPrincipal();
-                if(null != obj && obj instanceof User){
+                if (null != obj && obj instanceof User) {
                     User user = (User) obj;
-                    System.out.println("user:"+user);
+                    System.out.println("user:" + user);
                     //比较用户ID，符合即加入集合
-                    if(null != user && userIds.contains(user.getId())){
+                    if (null != user && userIds.contains(user.getId())) {
                         list.add(spc);
                     }
                 }
             }
         }
-        RealmSecurityManager securityManager =
-                (RealmSecurityManager) SecurityUtils.getSecurityManager();
-        MyShiroRealm realm = (MyShiroRealm)securityManager.getRealms().iterator().next();
-        for (SimplePrincipalCollection simplePrincipalCollection : list) {
-            realm.clearCachedAuthorizationInfo(simplePrincipalCollection);
-        }
+        return list;
     }
 }

@@ -20,6 +20,7 @@ import java.util.Map;
  * Created by yangqj on 2017/4/25.
  */
 @RestController
+@SuppressWarnings("unchecked")
 @RequestMapping("/resources")
 public class ResourcesController {
 
@@ -42,19 +43,27 @@ public class ResourcesController {
         return map;
     }
 
+    /**
+     * 角色中查询其拥有的资源
+     * @param rid
+     * @return
+     */
     @RequestMapping("/resourcesWithSelected")
     public List<Resources> resourcesWithSelected(Integer rid){
         return resourcesService.queryResourcesListWithSelected(rid);
     }
 
+    /**
+     * 左边加载菜单
+     * @return
+     */
     @RequestMapping("/loadMenu")
     public List<Resources> loadMenu(){
         Map<String,Object> map = new HashMap<>();
         Integer userid = (Integer) SecurityUtils.getSubject().getSession().getAttribute("userSessionId");
         map.put("type",1);
         map.put("userid",userid);
-        List<Resources> resourcesList = resourcesService.loadUserResources(map);
-        return resourcesList;
+        return resourcesService.loadUserResources(map);
     }
 
     //@CacheEvict(cacheNames="resources", allEntries=true)

@@ -7,10 +7,7 @@ import com.study.model.User;
 import com.study.service.RoleResourcesService;
 import com.study.service.RoleService;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -42,6 +39,11 @@ public class RoleController {
         return map;
     }
 
+    /**
+     * 用户界面中角色信息
+     * @param uid
+     * @return
+     */
     @RequestMapping("/rolesWithSelected")
     public List<Role> rolesWithSelected(Integer uid){
         return roleService.queryRoleListWithSelected(uid);
@@ -61,7 +63,7 @@ public class RoleController {
         }
     }
 
-    @RequestMapping(value = "/add")
+    @RequestMapping(value = "/add",method = RequestMethod.POST)
     public String add(Role role) {
         try {
             roleService.save(role);

@@ -31,10 +31,10 @@ public class UserRoleServiceImpl extends BaseService<UserRole> implements UserRo
         //添加
         String[] roleids = userRole.getRoleid().split(",");
         for (String roleId : roleids) {
-            UserRole u = new UserRole();
-            u.setUserid(userRole.getUserid());
-            u.setRoleid(roleId);
-            mapper.insert(u);
+                UserRole u = new UserRole();
+                u.setUserid(userRole.getUserid());
+                u.setRoleid(roleId);
+                mapper.insert(u);
         }
         //更新当前登录的用户的权限缓存
         List<Integer> userid = new ArrayList<Integer>();

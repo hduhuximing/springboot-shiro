@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import com.study.mapper.RoleMapper;
 import com.study.mapper.RoleResourcesMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -43,6 +44,10 @@ public class RoleServiceImpl extends BaseService<Role> implements RoleService{
         return new PageInfo<>(rolesList);
     }
 
+    /**
+     * 删除角色同时要删除角色资源表
+     * @param roleid
+     */
     @Override
     @Transactional(propagation= Propagation.REQUIRED,readOnly=false,rollbackFor={Exception.class})
     public void delRole(Integer roleid) {

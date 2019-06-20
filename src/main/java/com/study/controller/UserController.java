@@ -30,9 +30,9 @@ public class UserController {
     @RequestMapping
     public Map<String,Object> getAll(User user, String draw,
                                      @RequestParam(required = false, defaultValue = "1") int start,
-                                     @RequestParam(required = false, defaultValue = "10") int length){
+                                     @RequestParam(required = false, defaultValue = "10") int size){
         Map<String,Object> map = new HashMap<>();
-        PageInfo<User> pageInfo = userService.selectByPage(user, start, length);
+        PageInfo<User> pageInfo = userService.selectByPage(user, start, size);
         System.out.println("pageInfo.getTotal():"+pageInfo.getTotal());
         map.put("draw",draw);
         map.put("recordsTotal",pageInfo.getTotal());

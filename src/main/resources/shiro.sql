@@ -12,7 +12,7 @@ File Encoding         : 65001
 
 Date: 2017-05-07 21:00:04
 */
-
+create database shiro;
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------

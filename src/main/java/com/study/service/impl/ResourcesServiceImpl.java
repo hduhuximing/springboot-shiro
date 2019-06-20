@@ -7,6 +7,7 @@ import com.study.mapper.ResourcesMapper;
 import com.study.model.Resources;
 import com.study.model.User;
 import com.study.service.ResourcesService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,9 @@ import java.util.Map;
  */
 @Service("resourcesService")
 public class ResourcesServiceImpl extends BaseService<Resources> implements ResourcesService {
-   @Resource
+    @Resource
     private ResourcesMapper resourcesMapper;
+
 
     @Override
     public PageInfo<Resources> selectByPage(Resources resources, int start, int length) {
@@ -33,14 +35,13 @@ public class ResourcesServiceImpl extends BaseService<Resources> implements Reso
         List<Resources> userList = selectByExample(example);
         return new PageInfo<>(userList);
     }
-
     @Override
     public List<Resources> queryAll(){
         return resourcesMapper.queryAll();
     }
 
     @Override
-    //@Cacheable(cacheNames="resources",key="#map['userid'].toString()+#map['type']")
+    @Cacheable(cacheNames="resources",key="#map['userid'].toString()+#map['type']")
     public List<Resources> loadUserResources(Map<String, Object> map) {
         return resourcesMapper.loadUserResources(map);
     }

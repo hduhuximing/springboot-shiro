@@ -3,11 +3,11 @@ package com.study.model;
 import javax.persistence.*;
 import java.io.Serializable;
 
-public class Resources implements Serializable{
-    private static final long serialVersionUID = -6812242071705361506L;
+public class Resources implements Serializable {
+    private static final long    serialVersionUID = -6812242071705361506L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private              Integer id;
 
     /**
      * 资源名称
@@ -39,6 +39,7 @@ public class Resources implements Serializable{
 
     @Transient
     private String checked;//是否选中
+
     /**
      * @return id
      */

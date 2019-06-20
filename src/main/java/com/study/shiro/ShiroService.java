@@ -27,9 +27,8 @@ public class ShiroService {
     @Autowired
     private ShiroFilterFactoryBean shiroFilterFactoryBean;
     @Autowired
-    private ResourcesService resourcesService;
-  /*  @Autowired
-    private RedisSessionDAO redisSessionDAO;*/
+    private ResourcesService       resourcesService;
+
     /**
      * 初始化权限
      */
@@ -37,16 +36,16 @@ public class ShiroService {
         // 权限控制map.从数据库获取
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
         filterChainDefinitionMap.put("/logout", "logout");
-        filterChainDefinitionMap.put("/css/**","anon");
-        filterChainDefinitionMap.put("/js/**","anon");
-        filterChainDefinitionMap.put("/img/**","anon");
-        filterChainDefinitionMap.put("/font-awesome/**","anon");
+        filterChainDefinitionMap.put("/css/**", "anon");
+        filterChainDefinitionMap.put("/js/**", "anon");
+        filterChainDefinitionMap.put("/img/**", "anon");
+        filterChainDefinitionMap.put("/font-awesome/**", "anon");
         List<Resources> resourcesList = resourcesService.queryAll();
-        for(Resources resources:resourcesList){
+        for (Resources resources : resourcesList) {
 
             if (StringUtil.isNotEmpty(resources.getResurl())) {
-                String permission = "perms[" + resources.getResurl()+ "]";
-                filterChainDefinitionMap.put(resources.getResurl(),permission);
+                String permission = "perms[" + resources.getResurl() + "]";
+                filterChainDefinitionMap.put(resources.getResurl(), permission);
             }
         }
         filterChainDefinitionMap.put("/**", "authc");
@@ -57,9 +56,7 @@ public class ShiroService {
      * 重新加载权限
      */
     public void updatePermission() {
-
         synchronized (shiroFilterFactoryBean) {
-
             AbstractShiroFilter shiroFilter = null;
             try {
                 shiroFilter = (AbstractShiroFilter) shiroFilterFactoryBean
@@ -68,16 +65,14 @@ public class ShiroService {
                 throw new RuntimeException(
                         "get ShiroFilter from shiroFilterFactoryBean error!");
             }
-
             PathMatchingFilterChainResolver filterChainResolver = (PathMatchingFilterChainResolver) shiroFilter
                     .getFilterChainResolver();
             DefaultFilterChainManager manager = (DefaultFilterChainManager) filterChainResolver
                     .getFilterChainManager();
-
             // 清空老的权限控制
             manager.getFilterChains().clear();
-
             shiroFilterFactoryBean.getFilterChainDefinitionMap().clear();
+            //添加初始化权限
             shiroFilterFactoryBean
                     .setFilterChainDefinitionMap(loadFilterChainDefinitions());
             // 重新构建生成
@@ -89,10 +84,7 @@ public class ShiroService {
                         .replace(" ", "");
                 manager.createChain(url, chainDefinition);
             }
-
             System.out.println("更新权限成功！！");
         }
     }
-
-
 }
